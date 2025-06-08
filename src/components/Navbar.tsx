@@ -1,6 +1,6 @@
-// components/Navbar.tsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import logo from '../logo.svg';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -20,7 +20,8 @@ const Navbar = () => {
             backgroundColor: '#222',
             color: '#fff'
         }}>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <img src={logo} alt="Logo" style={{ height: 32, width: 32 }} />
                 <Link to="/" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: 20 }}>
                     B4cklog
                 </Link>
