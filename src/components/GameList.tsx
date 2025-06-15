@@ -1,66 +1,86 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Game } from '../pages/GameDetailPage'; // путь подкорректируй
 
-interface GameListProps {
+interface Game {
+    id: number;
     title: string;
-    games: Game[];
+    coverUrl?: string;
+    cover?: string;
+    releaseDate: string;
+    description: string;
 }
 
-const GameList: React.FC<GameListProps> = ({ title, games }) => {
-    const navigate = useNavigate();
+interface GameListProps {
+    games: Game[];
+    onGameClick: (gameId: number) => void;
+    layout: 'grid' | 'horizontal';
+}
 
+const GameList: React.FC<GameListProps> = ({ games, onGameClick, layout }) => {
     if (games.length === 0) {
         return (
-            <div style={{ marginBottom: 24 }}>
-                <h3>{title} (0)</h3>
-                <p>Список пуст</p>
+            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                Нет игр в списке
+            </div>
+        );
+    }
+
+    const getCoverUrl = (game: Game) => {
+        return game.coverUrl || game.cover || '/default-cover.png';
+    };
+
+    if (layout === 'horizontal') {
+    return (
+            <div className="flex overflow-x-auto space-x-4 pb-4">
+                {games.map((game) => (
+                    <div
+                        key={game.id}
+                        onClick={() => onGameClick(game.id)}
+                        className="flex-none w-48 cursor-pointer group"
+                    >
+                        <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
+                        <img
+                                src={getCoverUrl(game)}
+                                alt={game.title}
+                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity" />
+                        </div>
+                        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {game.title}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(game.releaseDate).getFullYear()}
+                        </p>
+                    </div>
+                ))}
             </div>
         );
     }
 
     return (
-        <div style={{ marginBottom: 24 }}>
-            <h3>{title} ({games.length})</h3>
-            <div
-                style={{
-                    display: 'flex',
-                    overflowX: 'auto',
-                    gap: 12,
-                    paddingBottom: 8,
-                }}
-            >
-                {games.map(game => (
-                    <div
-                        key={game.id}
-                        onClick={() => navigate(`/games/${game.id}`)}
-                        style={{
-                            cursor: 'pointer',
-                            minWidth: 120,
-                            flexShrink: 0,
-                            textAlign: 'center',
-                        }}
-                        title={game.name}
-                    >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {games.map((game) => (
+                <div
+                    key={game.id}
+                    onClick={() => onGameClick(game.id)}
+                    className="cursor-pointer group"
+                >
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
                         <img
-                            src={game.cover || '/default-cover.png'}
-                            alt={game.name}
-                            style={{ width: '100%', height: 'auto', borderRadius: 8, marginBottom: 6 }}
+                            src={getCoverUrl(game)}
+                            alt={game.title}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
-                        <div
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: 14,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                            }}
-                        >
-                            {game.name}
-                        </div>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity" />
                     </div>
-                ))}
-            </div>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {game.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(game.releaseDate).getFullYear()}
+                    </p>
+                </div>
+            ))}
         </div>
     );
 };

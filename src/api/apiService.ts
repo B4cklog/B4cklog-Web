@@ -58,3 +58,29 @@ export const getAllGames = () => {
 export const getGame = (id: string) => {
     return api.get(`/games/get/${id}`);
 };
+
+export const searchGames = (query: string) => {
+    return api.get('/games/search', {
+        params: { q: query }
+    });
+};
+
+export const updateEmail = (newEmail: string) => {
+    return api.patch('/users/updateEmail', null, {
+        params: { newEmail }
+    });
+};
+
+export const updatePassword = (newPassword: string) => {
+    return api.patch('/users/updatePassword', null, {
+        params: { newPassword }
+    });
+};
+
+export const getPopularGames = () => {
+    return api.get('/games/popular');
+};
+
+export const getLatestGames = () => {
+    return api.get('/games/latest');
+};

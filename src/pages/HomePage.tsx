@@ -1,63 +1,78 @@
 import React, { useEffect, useState } from 'react';
-import { getAllGames } from '../api/apiService'; // путь подкорректируй
 import { useNavigate } from 'react-router-dom';
+import { getPopularGames, getLatestGames } from '../api/apiService';
+import GameList from '../components/GameList';
 
 interface Game {
     id: number;
-    name: string;
-    cover: string;
+    title: string;
+    coverUrl: string;
+    releaseDate: string;
+    description: string;
 }
 
-const HomePage = () => {
-    const [games, setGames] = useState<Game[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+const HomePage: React.FC = () => {
+    const [popularGames, setPopularGames] = useState<Game[]>([]);
+    const [latestGames, setLatestGames] = useState<Game[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchGames = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const response = await getAllGames();
-                setGames(response.data);
-            } catch (err: any) {
-                setError(err.response?.data?.message || 'Ошибка при загрузке игр');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchGames();
+        loadGames();
     }, []);
 
-    // Проверка авторизации — если токена нет, редирект на логин
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login');
+    const loadGames = async () => {
+        try {
+            const [popularResponse, latestResponse] = await Promise.all([
+                getPopularGames(),
+                getLatestGames()
+            ]);
+            setPopularGames(popularResponse.data);
+            setLatestGames(latestResponse.data);
+        } catch (error) {
+            console.error('Failed to load games:', error);
+        } finally {
+            setIsLoading(false);
         }
-    }, [navigate]);
+    };
 
-    if (loading) return <div>Загрузка игр...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    const handleGameClick = (gameId: number) => {
+        navigate(`/games/${gameId}`);
+    };
 
     return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-            {games.map(game => (
-                <div
-                    key={game.id}
-                    style={{ cursor: 'pointer', width: 150, textAlign: 'center' }}
-                    onClick={() => navigate(`/games/${game.id}`)}
-                >
-                    <img
-                        src={game.cover || '/default-cover.png'} // запасная обложка
-                        alt={game.name}
-                        style={{ width: '100%', height: 'auto', borderRadius: 8 }}
+        <div className="container mx-auto px-4 py-8">
+            {/* Популярные игры */}
+            <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Популярные игры</h2>
+                {isLoading ? (
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : (
+                    <GameList
+                        games={popularGames}
+                        onGameClick={handleGameClick}
+                        layout="horizontal"
                     />
-                    <div style={{ marginTop: 8, fontWeight: 'bold' }}>{game.name}</div>
-                </div>
-            ))}
+                )}
+            </section>
+
+            {/* Последние релизы */}
+            <section>
+                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Последние релизы</h2>
+                {isLoading ? (
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : (
+                    <GameList
+                        games={latestGames}
+                        onGameClick={handleGameClick}
+                        layout="horizontal"
+                    />
+                )}
+            </section>
         </div>
     );
 };

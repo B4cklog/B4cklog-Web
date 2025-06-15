@@ -1,0 +1,117 @@
+@import './themes.css';
+
+.auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-primary);
+    padding: 2rem;
+}
+
+.auth-form {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px var(--shadow);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+}
+
+.auth-form h2 {
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 1rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+}
+
+.form-group input::placeholder {
+    color: var(--text-secondary);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    background: var(--accent-secondary);
+    transform: translateY(-2px);
+}
+
+.auth-button:disabled {
+    background: var(--bg-tertiary);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auth-error {
+    color: var(--error);
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 8px;
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.auth-links a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .auth-form {
+        padding: 1.5rem;
+    }
+    
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
+} 

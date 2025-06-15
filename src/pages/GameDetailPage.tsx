@@ -11,11 +11,11 @@ export interface Game {
 }
 
 const lists = [
-    "wantToPlay",
-    "playing",
-    "played",
-    "completed",
-    "completed100"
+    { id: "wantToPlay", name: "Хочу поиграть" },
+    { id: "playing", name: "Сейчас играю" },
+    { id: "played", name: "Играл" },
+    { id: "completed", name: "Прошел" },
+    { id: "completed100", name: "Прошел на 100%" }
 ];
 
 const GameDetailPage = () => {
@@ -25,7 +25,7 @@ const GameDetailPage = () => {
     const [error, setError] = useState('');
 
     const [userId, setUserId] = useState<number | null>(null);
-    const [selectedList, setSelectedList] = useState<string>(lists[0]);
+    const [selectedList, setSelectedList] = useState<string>(lists[0].id);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState('');
     const [actionSuccess, setActionSuccess] = useState('');
@@ -65,7 +65,7 @@ const GameDetailPage = () => {
         setActionSuccess('');
         try {
             await addGameToList(userId, game.id, selectedList);
-            setActionSuccess(`Игра добавлена в список ${selectedList}`);
+            setActionSuccess(`Игра добавлена в список ${lists.find(l => l.id === selectedList)?.name}`);
         } catch (e: any) {
             setActionError(e.response?.data?.message || 'Ошибка при добавлении игры');
         } finally {
@@ -88,44 +88,108 @@ const GameDetailPage = () => {
         }
     };
 
-    if (loading) return <div>Загрузка игры...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
-    if (!game) return <div>Игра не найдена</div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-red-500 text-center">{error}</div>
+            </div>
+        );
+    }
+
+    if (!game) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-gray-500 dark:text-gray-400 text-center">Игра не найдена</div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <h2>{game.name}</h2>
-            <img src={game.cover || '/default-cover.png'} alt={game.name} style={{ maxWidth: '300px' }} />
-            <p>{game.summary}</p>
-            <p><b>Дата релиза:</b> {game.releaseDate}</p>
+        <div className="container mx-auto px-4 py-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div className="md:flex">
+                    <div className="md:w-1/3">
+                        <img
+                            src={game.cover || '/default-cover.png'}
+                            alt={game.name}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div className="p-6 md:w-2/3">
+                        <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">{game.name}</h1>
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">{game.summary}</p>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">
+                            <span className="font-semibold">Дата релиза:</span> {game.releaseDate}
+                        </p>
 
-            {userId ? (
-                <div>
-                    <h3>Добавить игру в список</h3>
-                    <select
-                        value={selectedList}
-                        onChange={e => setSelectedList(e.target.value)}
-                        disabled={actionLoading}
-                    >
-                        {lists.map(list => (
-                            <option key={list} value={list}>{list}</option>
-                        ))}
-                    </select>
-                    <button onClick={handleAdd} disabled={actionLoading}>
-                        Добавить
-                    </button>
+                        {userId ? (
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                                        Добавить игру в список
+                                    </h3>
+                                    <select
+                                        value={selectedList}
+                                        onChange={e => setSelectedList(e.target.value)}
+                                        disabled={actionLoading}
+                                        className="w-full p-2 border rounded-lg bg-white dark:bg-gray-700 
+                                                 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                                    >
+                                        {lists.map(list => (
+                                            <option key={list.id} value={list.id}>
+                                                {list.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        onClick={handleAdd}
+                                        disabled={actionLoading}
+                                        className="mt-2 w-full bg-blue-500 text-white px-4 py-2 rounded-lg
+                                                 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {actionLoading ? 'Добавление...' : 'Добавить'}
+                                    </button>
+                                </div>
 
-                    <h3>Удалить игру из всех списков</h3>
-                    <button onClick={handleRemove} disabled={actionLoading}>
-                        Удалить из всех списков
-                    </button>
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                                        Удалить игру из всех списков
+                                    </h3>
+                                    <button
+                                        onClick={handleRemove}
+                                        disabled={actionLoading}
+                                        className="w-full bg-red-500 text-white px-4 py-2 rounded-lg
+                                                 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500
+                                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {actionLoading ? 'Удаление...' : 'Удалить из всех списков'}
+                                    </button>
+                                </div>
 
-                    {actionError && <p style={{ color: 'red' }}>{actionError}</p>}
-                    {actionSuccess && <p style={{ color: 'green' }}>{actionSuccess}</p>}
+                                {actionError && (
+                                    <p className="text-red-500 text-center">{actionError}</p>
+                                )}
+                                {actionSuccess && (
+                                    <p className="text-green-500 text-center">{actionSuccess}</p>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 dark:text-gray-400">
+                                Авторизуйтесь, чтобы редактировать списки.
+                            </p>
+                        )}
+                    </div>
                 </div>
-            ) : (
-                <p>Авторизуйтесь, чтобы редактировать списки.</p>
-            )}
+            </div>
         </div>
     );
 };
