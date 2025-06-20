@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
+const SESSION_ID_KEY = 'sessionId';
 
 const api = axios.create({
     baseURL: process.env.REACT_APP_BACKEND_URL,
@@ -25,12 +26,14 @@ api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        const isRefreshRequest = originalRequest && originalRequest.url && originalRequest.url.includes('/auth/refresh');
+        if (error.response && error.response.status === 401 && !originalRequest._retry && !isRefreshRequest) {
             originalRequest._retry = true;
             const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-            if (refreshToken) {
+            const sessionId = localStorage.getItem(SESSION_ID_KEY);
+            if (refreshToken && sessionId) {
                 try {
-                    const res = await api.post('/auth/refresh', { refreshToken });
+                    const res = await api.post('/auth/refresh', { refreshToken, sessionId });
                     const { accessToken } = res.data;
                     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
                     originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
@@ -38,11 +41,17 @@ api.interceptors.response.use(
                 } catch (refreshError) {
                     localStorage.removeItem(ACCESS_TOKEN_KEY);
                     localStorage.removeItem(REFRESH_TOKEN_KEY);
+                    localStorage.removeItem(SESSION_ID_KEY);
                     window.location.href = '/login';
                 }
             } else {
                 window.location.href = '/login';
             }
+        } else if (error.response && error.response.status === 401 && isRefreshRequest) {
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(SESSION_ID_KEY);
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }
@@ -50,9 +59,10 @@ api.interceptors.response.use(
 
 export const login = async (username: string, password: string) => {
     const response = await api.post('/auth/login', { username, password });
-    const { accessToken, refreshToken } = response.data;
+    const { accessToken, refreshToken, sessionId } = response.data;
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(SESSION_ID_KEY, sessionId);
     return response;
 };
 
@@ -65,21 +75,24 @@ export const register = async (
     age: number
 ) => {
     const response = await api.post('/auth/register', { username, password, email, firstName, lastName, age });
-    const { accessToken, refreshToken } = response.data;
+    const { accessToken, refreshToken, sessionId } = response.data;
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(SESSION_ID_KEY, sessionId);
     return response;
 };
 
 export const logout = async () => {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    if (refreshToken) {
+    const sessionId = localStorage.getItem(SESSION_ID_KEY);
+    if (refreshToken && sessionId) {
         try {
-            await api.post('/auth/logout', { refreshToken });
+            await api.post('/auth/logout', { refreshToken, sessionId });
         } catch {}
     }
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(SESSION_ID_KEY);
 };
 
 export const getUser = (userId: string) => {
