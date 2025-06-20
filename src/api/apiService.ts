@@ -22,8 +22,15 @@ export const login = (username: string, password: string) => {
     return api.post('/auth/login', { username, password });
 };
 
-export const register = (username: string, password: string, email: string) => {
-    return api.post('/auth/register', { username, password, email });
+export const register = (
+    username: string,
+    password: string,
+    email: string,
+    firstName: string,
+    lastName: string,
+    age: number
+) => {
+    return api.post('/auth/register', { username, password, email, firstName, lastName, age });
 };
 
 export const getUser = (userId: string) => {
@@ -87,4 +94,16 @@ export const getPopularGames = () => {
 
 export const getLatestGames = () => {
     return api.get('/games/latest');
+};
+
+export const getAverageRating = (gameId: number) => {
+    return api.get(`/reviews/game/${gameId}/average`);
+};
+
+export const getUserReview = (userId: number, gameId: number) => {
+    return api.get(`/reviews/user/${userId}/game/${gameId}`);
+};
+
+export const submitReview = (review: import('../types/Review').ReviewRequest) => {
+    return api.post('/reviews/add', review);
 };

@@ -7,7 +7,6 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import GameDetailPage from "./pages/GameDetailPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
-import WelcomePage from './pages/WelcomePage';
 import { useTheme } from './hooks/useTheme';
 import './styles/themes.css';
 

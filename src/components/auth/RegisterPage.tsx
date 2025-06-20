@@ -9,6 +9,9 @@ const RegisterPage = () => {
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [age, setAge] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -21,9 +24,21 @@ const RegisterPage = () => {
             setLoading(false);
             return;
         }
+        if (!/^[0-9]+$/.test(age) || parseInt(age) < 0) {
+            setError('Возраст должен быть неотрицательным целым числом');
+            setLoading(false);
+            return;
+        }
 
         try {
-            const response = await register(username, password, email);
+            const response = await register(
+                username,
+                password,
+                email,
+                firstName,
+                lastName,
+                parseInt(age)
+            );
             const token = response.data.token;
             if (token) {
                 localStorage.setItem('token', token);
@@ -64,6 +79,36 @@ const RegisterPage = () => {
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="Email"
+                                required
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
+                            />
+                        </div>
+                        <div>
+                            <input
+                                type="text"
+                                value={firstName}
+                                onChange={e => setFirstName(e.target.value)}
+                                placeholder="Имя"
+                                required
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
+                            />
+                        </div>
+                        <div>
+                            <input
+                                type="text"
+                                value={lastName}
+                                onChange={e => setLastName(e.target.value)}
+                                placeholder="Фамилия"
+                                required
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
+                            />
+                        </div>
+                        <div>
+                            <input
+                                type="text"
+                                value={age}
+                                onChange={e => setAge(e.target.value)}
+                                placeholder="Возраст"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
                             />
