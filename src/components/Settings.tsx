@@ -1,27 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { updateEmail, updatePassword } from '../api/apiService';
 
 interface SettingsProps {
-    onThemeChange: (isDark: boolean) => void;
-    initialTheme: boolean;
+    onBack: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ onThemeChange, initialTheme }) => {
-    const [isDarkTheme, setIsDarkTheme] = useState(initialTheme);
+const Settings: React.FC<SettingsProps> = ({ onBack }) => {
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
-
-    useEffect(() => {
-        setIsDarkTheme(initialTheme);
-    }, [initialTheme]);
-
-    const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isDark = e.target.checked;
-        setIsDarkTheme(isDark);
-        onThemeChange(isDark);
-    };
 
     const handleEmailUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,25 +40,16 @@ const Settings: React.FC<SettingsProps> = ({ onThemeChange, initialTheme }) => {
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Настройки</h2>
-
-            {/* Тема */}
-            <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">Внешний вид</h3>
-                <div className="flex items-center">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={isDarkTheme}
-                            onChange={handleThemeChange}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {isDarkTheme ? 'Темная тема' : 'Светлая тема'}
-                        </span>
-                    </label>
-                </div>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Настройки</h2>
+                <button
+                    onClick={onBack}
+                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             {/* Настройки аккаунта */}
@@ -95,7 +74,7 @@ const Settings: React.FC<SettingsProps> = ({ onThemeChange, initialTheme }) => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
                     >
                         Обновить email
                     </button>
@@ -133,7 +112,7 @@ const Settings: React.FC<SettingsProps> = ({ onThemeChange, initialTheme }) => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
                     >
                         Обновить пароль
                     </button>
@@ -144,7 +123,9 @@ const Settings: React.FC<SettingsProps> = ({ onThemeChange, initialTheme }) => {
             {message.text && (
                 <div
                     className={`mt-4 p-4 rounded-lg ${
-                        message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        message.type === 'success' 
+                            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
+                            : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
                     }`}
                 >
                     {message.text}

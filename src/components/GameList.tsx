@@ -1,13 +1,5 @@
 import React from 'react';
-
-interface Game {
-    id: number;
-    title: string;
-    coverUrl?: string;
-    cover?: string;
-    releaseDate: string;
-    description: string;
-}
+import { Game } from '../types/Game';
 
 interface GameListProps {
     games: Game[];
@@ -25,7 +17,19 @@ const GameList: React.FC<GameListProps> = ({ games, onGameClick, layout }) => {
     }
 
     const getCoverUrl = (game: Game) => {
-        return game.coverUrl || game.cover || '/default-cover.png';
+        if (game.cover) {
+            const processedUrl = game.cover.url.replace("t_thumb", "t_cover_big");
+            return processedUrl.startsWith("//") ? `https:${processedUrl}` : processedUrl;
+        }
+        return '/default-cover.png';
+    };
+
+    const getReleaseDate = (game: Game) => {
+        if (game.first_release_date) {
+            const date = new Date(game.first_release_date * 1000);
+            return date.getFullYear().toString();
+        }
+        return '';
     };
 
     if (layout === 'horizontal') {
@@ -40,16 +44,16 @@ const GameList: React.FC<GameListProps> = ({ games, onGameClick, layout }) => {
                         <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
                         <img
                                 src={getCoverUrl(game)}
-                                alt={game.title}
+                                alt={game.name}
                                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity" />
                         </div>
                         <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {game.title}
+                            {game.name}
                         </h3>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(game.releaseDate).getFullYear()}
+                            {getReleaseDate(game)}
                         </p>
                     </div>
                 ))}
@@ -68,16 +72,16 @@ const GameList: React.FC<GameListProps> = ({ games, onGameClick, layout }) => {
                     <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
                         <img
                             src={getCoverUrl(game)}
-                            alt={game.title}
+                            alt={game.name}
                             className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity" />
                     </div>
                     <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {game.title}
+                        {game.name}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(game.releaseDate).getFullYear()}
+                        {getReleaseDate(game)}
                     </p>
                 </div>
             ))}

@@ -1,14 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GameList from '../components/GameList';
-
-interface Game {
-    id: number;
-    name: string;
-    cover: string;
-    releaseDate: string;
-    summary: string;
-}
+import { Game } from '../types/Game';
 
 const SearchResultsPage: React.FC = () => {
     const location = useLocation();
@@ -30,13 +23,7 @@ const SearchResultsPage: React.FC = () => {
                 </p>
             ) : (
                 <GameList
-                    games={results.map(game => ({
-                        id: game.id,
-                        title: game.name,
-                        coverUrl: game.cover,
-                        releaseDate: game.releaseDate,
-                        description: game.summary
-                    }))}
+                    games={results}
                     onGameClick={handleGameClick}
                     layout="grid"
                 />

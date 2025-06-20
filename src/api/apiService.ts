@@ -34,6 +34,10 @@ export const getCurrentUser = () => {
     return api.get('/users/profile');
 };
 
+export const getCurrentUserWithGames = () => {
+    return api.get('/users/profile/withGames');
+};
+
 export const addGameToList = (userId: number, gameId: number, listName: string) => {
     return api.post(`/users/${userId}/addGameToList`, null, {
         params: {

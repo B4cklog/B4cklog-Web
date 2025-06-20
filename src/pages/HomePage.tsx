@@ -2,14 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPopularGames, getLatestGames } from '../api/apiService';
 import GameList from '../components/GameList';
-
-interface Game {
-    id: number;
-    title: string;
-    coverUrl: string;
-    releaseDate: string;
-    description: string;
-}
+import { Game } from '../types/Game';
 
 const HomePage: React.FC = () => {
     const [popularGames, setPopularGames] = useState<Game[]>([]);

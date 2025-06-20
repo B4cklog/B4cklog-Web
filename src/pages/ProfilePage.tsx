@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../api/apiService';
+import { getCurrentUserWithGames } from '../api/apiService';
 import GameList from '../components/GameList';
 import Settings from '../components/Settings';
-
-interface Game {
-    id: number;
-    title: string;
-    coverUrl: string;
-    releaseDate: string;
-    description: string;
-}
+import { Game } from '../types/Game';
 
 interface User {
     id: number;
@@ -20,36 +13,33 @@ interface User {
     lastName: string;
     age: number;
     isAdmin: boolean;
-    backlogWantToPlay: Game[];
-    backlogPlaying: Game[];
-    backlogPlayed: Game[];
-    backlogCompleted: Game[];
-    backlogCompleted100: Game[];
+}
+
+interface UserProfileResponse {
+    user: User;
+    games: {
+        want_to_play: Game[];
+        playing: Game[];
+        played: Game[];
+        completed: Game[];
+        completed_100: Game[];
+    };
 }
 
 const ProfilePage: React.FC = () => {
-    const [user, setUser] = useState<User | null>(null);
+    const [profileData, setProfileData] = useState<UserProfileResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
-    const [isDarkTheme, setIsDarkTheme] = useState(() => {
-        const savedTheme = localStorage.getItem('theme');
-        return savedTheme === 'dark';
-    });
     const navigate = useNavigate();
 
     useEffect(() => {
         loadUserProfile();
     }, []);
 
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', isDarkTheme);
-        localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
-    }, [isDarkTheme]);
-
     const loadUserProfile = async () => {
         try {
-            const response = await getCurrentUser();
-            setUser(response.data);
+            const response = await getCurrentUserWithGames();
+            setProfileData(response.data);
         } catch (error) {
             console.error('Failed to load user profile:', error);
         } finally {
@@ -61,10 +51,6 @@ const ProfilePage: React.FC = () => {
         navigate(`/games/${gameId}`);
     };
 
-    const handleThemeChange = (isDark: boolean) => {
-        setIsDarkTheme(isDark);
-    };
-
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -73,7 +59,7 @@ const ProfilePage: React.FC = () => {
         );
     }
 
-    if (!user) {
+    if (!profileData) {
         return (
             <div className="text-center py-8">
                 <p className="text-red-500">Ошибка загрузки профиля</p>
@@ -81,12 +67,13 @@ const ProfilePage: React.FC = () => {
         );
     }
 
+    const { user, games } = profileData;
+
     return (
         <div className="container mx-auto px-4 py-8">
             {showSettings ? (
                 <Settings
-                    onThemeChange={handleThemeChange}
-                    initialTheme={isDarkTheme}
+                    onBack={() => setShowSettings(false)}
                 />
             ) : (
                 <>
@@ -106,7 +93,7 @@ const ProfilePage: React.FC = () => {
                             </div>
                             <button
                                 onClick={() => setShowSettings(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200"
                             >
                                 Настройки
                             </button>
@@ -121,7 +108,7 @@ const ProfilePage: React.FC = () => {
                                 Хочу поиграть
                             </h2>
                             <GameList
-                                games={user.backlogWantToPlay}
+                                games={games.want_to_play}
                                 onGameClick={handleGameClick}
                                 layout="grid"
                             />
@@ -133,7 +120,7 @@ const ProfilePage: React.FC = () => {
                                 Сейчас играю
                             </h2>
                             <GameList
-                                games={user.backlogPlaying}
+                                games={games.playing}
                                 onGameClick={handleGameClick}
                                 layout="grid"
                             />
@@ -145,7 +132,7 @@ const ProfilePage: React.FC = () => {
                                 Играл
                             </h2>
                             <GameList
-                                games={user.backlogPlayed}
+                                games={games.played}
                                 onGameClick={handleGameClick}
                                 layout="grid"
                             />
@@ -157,7 +144,7 @@ const ProfilePage: React.FC = () => {
                                 Прошел
                             </h2>
                             <GameList
-                                games={user.backlogCompleted}
+                                games={games.completed}
                                 onGameClick={handleGameClick}
                                 layout="grid"
                             />
@@ -169,7 +156,7 @@ const ProfilePage: React.FC = () => {
                                 Прошел на 100%
                             </h2>
                             <GameList
-                                games={user.backlogCompleted100}
+                                games={games.completed_100}
                                 onGameClick={handleGameClick}
                                 layout="grid"
                             />

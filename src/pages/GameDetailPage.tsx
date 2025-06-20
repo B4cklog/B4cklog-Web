@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getGame, addGameToList, removeGameFromAllLists, getCurrentUser } from '../api/apiService';
-
-export interface Game {
-    id: number;
-    name: string;
-    summary: string;
-    cover: string;
-    releaseDate: string;
-}
+import { Game } from '../types/Game';
 
 const lists = [
     { id: "wantToPlay", name: "Хочу поиграть" },
@@ -29,6 +22,22 @@ const GameDetailPage = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState('');
     const [actionSuccess, setActionSuccess] = useState('');
+
+    const getCoverUrl = (game: Game) => {
+        if (game.cover) {
+            const processedUrl = game.cover.url.replace("t_thumb", "t_cover_big");
+            return processedUrl.startsWith("//") ? `https:${processedUrl}` : processedUrl;
+        }
+        return '/default-cover.png';
+    };
+
+    const getReleaseDate = (game: Game) => {
+        if (game.first_release_date) {
+            const date = new Date(game.first_release_date * 1000);
+            return date.toLocaleDateString('ru-RU');
+        }
+        return 'Не указана';
+    };
 
     useEffect(() => {
         const fetchGame = async () => {
@@ -118,16 +127,16 @@ const GameDetailPage = () => {
                 <div className="md:flex">
                     <div className="md:w-1/3">
                         <img
-                            src={game.cover || '/default-cover.png'}
+                            src={getCoverUrl(game)}
                             alt={game.name}
                             className="w-full h-full object-cover"
                         />
                     </div>
                     <div className="p-6 md:w-2/3">
                         <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">{game.name}</h1>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">{game.summary}</p>
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">{game.summary || 'Описание отсутствует'}</p>
                         <p className="text-gray-500 dark:text-gray-400 mb-6">
-                            <span className="font-semibold">Дата релиза:</span> {game.releaseDate}
+                            <span className="font-semibold">Дата релиза:</span> {getReleaseDate(game)}
                         </p>
 
                         {userId ? (
