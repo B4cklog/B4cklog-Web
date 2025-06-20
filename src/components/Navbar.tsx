@@ -3,14 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 import { useTheme } from '../hooks/useTheme';
 import logo from '../logo.svg';
+import { logout } from '../api/apiService';
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
     const { isDarkTheme, toggleTheme } = useTheme();
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
 
@@ -26,7 +28,7 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        {token ? (
+                        {accessToken && refreshToken ? (
                             <>
                                 <div className="flex-1 max-w-lg mx-4">
                                     <SearchBar />

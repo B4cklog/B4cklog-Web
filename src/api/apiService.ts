@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+const ACCESS_TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+
 const api = axios.create({
     baseURL: process.env.REACT_APP_BACKEND_URL,
     headers: {
@@ -8,7 +11,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (token) {
         config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${token}`;
@@ -18,11 +21,42 @@ api.interceptors.request.use(config => {
     return Promise.reject(error);
 });
 
-export const login = (username: string, password: string) => {
-    return api.post('/auth/login', { username, password });
+api.interceptors.response.use(
+    response => response,
+    async error => {
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+            if (refreshToken) {
+                try {
+                    const res = await api.post('/auth/refresh', { refreshToken });
+                    const { accessToken } = res.data;
+                    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+                    originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+                    return api(originalRequest);
+                } catch (refreshError) {
+                    localStorage.removeItem(ACCESS_TOKEN_KEY);
+                    localStorage.removeItem(REFRESH_TOKEN_KEY);
+                    window.location.href = '/login';
+                }
+            } else {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const login = async (username: string, password: string) => {
+    const response = await api.post('/auth/login', { username, password });
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    return response;
 };
 
-export const register = (
+export const register = async (
     username: string,
     password: string,
     email: string,
@@ -30,7 +64,22 @@ export const register = (
     lastName: string,
     age: number
 ) => {
-    return api.post('/auth/register', { username, password, email, firstName, lastName, age });
+    const response = await api.post('/auth/register', { username, password, email, firstName, lastName, age });
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    return response;
+};
+
+export const logout = async () => {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (refreshToken) {
+        try {
+            await api.post('/auth/logout', { refreshToken });
+        } catch {}
+    }
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
 export const getUser = (userId: string) => {

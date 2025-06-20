@@ -14,16 +14,9 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await login(username, password);
-            const token = response.data.token;
-            if (token) {
-                localStorage.setItem('token', token);
-                setLoading(false);
-                window.location.href = '/';
-            } else {
-                setError('Токен не получен');
-                setLoading(false);
-            }
+            await login(username, password);
+            setLoading(false);
+            window.location.href = '/';
         } catch (err: any) {
             setError(err.response?.data?.message || 'Ошибка входа');
             setLoading(false);

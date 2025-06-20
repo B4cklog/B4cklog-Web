@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { register } from '../../api/apiService';
 
 const RegisterPage = () => {
@@ -12,7 +12,6 @@ const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [age, setAge] = useState('');
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,7 +30,7 @@ const RegisterPage = () => {
         }
 
         try {
-            const response = await register(
+            await register(
                 username,
                 password,
                 email,
@@ -39,16 +38,10 @@ const RegisterPage = () => {
                 lastName,
                 parseInt(age)
             );
-            const token = response.data.token;
-            if (token) {
-                localStorage.setItem('token', token);
-                navigate('/');
-            } else {
-                setError('Регистрация прошла успешно, но токен не получен. Пожалуйста, войдите.');
-            }
+            setLoading(false);
+            window.location.href = '/';
         } catch (err: any) {
             setError(err.response?.data?.message || 'Ошибка регистрации');
-        } finally {
             setLoading(false);
         }
     };

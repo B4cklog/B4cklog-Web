@@ -1,4 +1,3 @@
-// components/PrivateRoute.tsx
 import React, {JSX} from 'react';
 import WelcomePage from '../pages/WelcomePage';
 
@@ -7,9 +6,9 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        // Если токена нет, показываем WelcomePage
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!accessToken || !refreshToken) {
         return <WelcomePage />;
     }
     return children;
