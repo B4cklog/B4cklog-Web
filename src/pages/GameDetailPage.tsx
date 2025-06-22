@@ -5,6 +5,7 @@ import { Game } from '../types/Game';
 import { ReviewResponse } from '../types/Review';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import Modal from 'react-modal';
 
 const lists = [
     { id: "wantToPlay", name: "Хочу поиграть" },
@@ -32,6 +33,7 @@ const GameDetailPage = () => {
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewComment, setReviewComment] = useState('');
     const [reviewLoading, setReviewLoading] = useState(false);
+    const [fullscreenScreenshot, setFullscreenScreenshot] = useState<string | null>(null);
 
     const getCoverUrl = (game: Game) => {
         if (game.cover) {
@@ -170,6 +172,28 @@ const GameDetailPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            {/* Модальное окно для полноразмерного скриншота */}
+            <Modal
+                isOpen={!!fullscreenScreenshot}
+                onRequestClose={() => setFullscreenScreenshot(null)}
+                className="fixed inset-0 flex items-center justify-center z-50"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-80 z-40"
+                ariaHideApp={false}
+            >
+                <button
+                    onClick={() => setFullscreenScreenshot(null)}
+                    className="absolute top-4 right-4 z-50 text-white text-3xl bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-80 transition"
+                    aria-label="Закрыть"
+                >
+                    &times;
+                </button>
+                <img
+                    src={fullscreenScreenshot || ''}
+                    alt="Скриншот"
+                    className="max-h-[90vh] max-w-[90vw] rounded shadow-lg"
+                    onClick={() => setFullscreenScreenshot(null)}
+                />
+            </Modal>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
                 <div className="md:flex">
                     <div className="md:w-1/3">
@@ -185,6 +209,26 @@ const GameDetailPage = () => {
                         <p className="text-gray-500 dark:text-gray-400 mb-6">
                             <span className="font-semibold">Дата релиза:</span> {getReleaseDate(game)}
                         </p>
+                        <p className="text-gray-500 dark:text-gray-400 mb-2">
+                            <span className="font-semibold">Жанры:</span> {game.genres && game.genres.length > 0 ? game.genres.map(g => g.name).join(', ') : 'Не указаны'}
+                        </p>
+                        {/* Галерея скриншотов */}
+                        {game.screenshots && game.screenshots.length > 0 && (
+                            <div className="mb-6">
+                                <span className="font-semibold text-gray-900 dark:text-white block mb-2">Скриншоты:</span>
+                                <div className="flex flex-wrap gap-4">
+                                    {game.screenshots.map(s => (
+                                        <img
+                                            key={s.id}
+                                            src={s.url.replace('t_thumb', 't_screenshot_big').startsWith('//') ? `https:${s.url.replace('t_thumb', 't_screenshot_big')}` : s.url.replace('t_thumb', 't_screenshot_big')}
+                                            alt="Скриншот"
+                                            className="rounded shadow w-48 h-28 object-cover cursor-pointer hover:scale-105 transition-transform"
+                                            onClick={() => setFullscreenScreenshot(s.url.replace('t_thumb', 't_screenshot_huge').startsWith('//') ? `https:${s.url.replace('t_thumb', 't_screenshot_huge')}` : s.url.replace('t_thumb', 't_screenshot_huge'))}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {userId ? (
                             <div className="space-y-4">

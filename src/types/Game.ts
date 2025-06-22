@@ -8,6 +8,16 @@ export interface Platform {
     name: string;
 }
 
+export interface Genre {
+    id: number;
+    name: string;
+}
+
+export interface Screenshot {
+    id: number;
+    url: string;
+}
+
 export interface Game {
     id: number;
     name: string;
@@ -15,4 +25,6 @@ export interface Game {
     cover?: Cover;
     first_release_date?: number;
     platforms?: Platform[];
+    genres?: Genre[];
+    screenshots?: Screenshot[];
 } 
