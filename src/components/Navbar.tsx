@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 import { useTheme } from '../hooks/useTheme';
@@ -10,6 +10,19 @@ const Navbar = () => {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
     const { isDarkTheme, toggleTheme } = useTheme();
+    const [profileLink, setProfileLink] = useState<string>("/user/me");
+
+    useEffect(() => {
+        const fetchId = async () => {
+            try {
+                const res = await import('../api/apiService').then(m => m.getCurrentUser());
+                setProfileLink(`/user/${res.data.id}`);
+            } catch {
+                setProfileLink("/user/me");
+            }
+        };
+        if (accessToken && refreshToken) fetchId();
+    }, [accessToken, refreshToken]);
 
     const handleLogout = async () => {
         await logout();
@@ -36,7 +49,7 @@ const Navbar = () => {
                                 <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                                     Главная
                                 </Link>
-                                <Link to="/profile" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+                                <Link to={profileLink} className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                                     Профиль
                                 </Link>
                                 <button

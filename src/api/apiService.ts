@@ -169,3 +169,43 @@ export const getUserReview = (userId: number, gameId: number) => {
 export const submitReview = (review: import('../types/Review').ReviewRequest) => {
     return api.post('/reviews/add', review);
 };
+
+export const getUserProfileWithGames = (userId: string) => {
+    return api.get(`/users/${userId}/profile/withGames`);
+};
+
+export const getUserFriends = (userId?: string) => {
+    if (userId) {
+        return api.get(`/users/${userId}/friends`);
+    } else {
+        return api.get(`/users/friends`);
+    }
+};
+
+export const sendFriendRequest = (receiverId: number) => {
+    return api.post(`/users/friends/request`, null, { params: { receiverId } });
+};
+
+export const acceptFriendRequest = (requestId: number) => {
+    return api.post(`/users/friends/request/${requestId}/accept`);
+};
+
+export const rejectFriendRequest = (requestId: number) => {
+    return api.post(`/users/friends/request/${requestId}/reject`);
+};
+
+export const getIncomingFriendRequests = () => {
+    return api.get(`/users/friends/requests/incoming`);
+};
+
+export const getOutgoingFriendRequests = () => {
+    return api.get(`/users/friends/requests/outgoing`);
+};
+
+export const cancelFriendRequest = (requestId: number) => {
+    return api.delete(`/users/friends/request/${requestId}`);
+};
+
+export const removeFriend = (friendId: number) => {
+    return api.delete(`/users/friends/${friendId}`);
+};
