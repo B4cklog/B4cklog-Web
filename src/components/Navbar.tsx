@@ -52,6 +52,9 @@ const Navbar = () => {
                                 <Link to={profileLink} className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
                                     Профиль
                                 </Link>
+                                <Link to="/friends/search" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+                                    Друзья
+                                </Link>
                                 <button
                                     onClick={toggleTheme}
                                     className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"

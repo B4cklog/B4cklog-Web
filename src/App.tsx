@@ -10,6 +10,7 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import UserProfilePage from './pages/UserProfilePage';
 import { useTheme } from './hooks/useTheme';
 import './styles/themes.css';
+import FriendSearchPage from "./pages/FriendSearchPage";
 
 function App() {
     // Инициализируем глобальную тему
@@ -39,6 +40,11 @@ function App() {
                 <Route path="/search" element={
                     <PrivateRoute>
                         <SearchResultsPage />
+                    </PrivateRoute>
+                } />
+                <Route path="/friends/search" element={
+                    <PrivateRoute>
+                        <FriendSearchPage />
                     </PrivateRoute>
                 } />
                 <Route path="/user/:id" element={

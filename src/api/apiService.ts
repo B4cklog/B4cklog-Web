@@ -182,6 +182,11 @@ export const getUserFriends = (userId?: string) => {
     }
 };
 
+export const searchUsers = (query: string) =>
+    api.get('/users/search', {
+        params: { query }
+    });
+
 export const sendFriendRequest = (receiverId: number) => {
     return api.post(`/users/friends/request`, null, { params: { receiverId } });
 };
