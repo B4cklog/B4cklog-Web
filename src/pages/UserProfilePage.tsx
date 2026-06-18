@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserProfileWithGames, getUserFriends, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, getIncomingFriendRequests, getOutgoingFriendRequests, cancelFriendRequest, removeFriend } from '../api/apiService';
 import GameList from '../components/GameList';
-import { Cover, Game as GameType } from '../types/Game';
+import { Game as GameType } from '../types/Game';
 import Settings from '../components/Settings';
 
 interface User {
     id: number;
     username: string;
-    email: string;
+    email?: string;
     firstName: string;
     lastName: string;
     age: number;
@@ -53,6 +53,7 @@ const UserProfilePage: React.FC = () => {
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [showSettings, setShowSettings] = useState(false);
     const [showRemovePopup, setShowRemovePopup] = useState(false);
+    const [actionError, setActionError] = useState('');
 
     // Новый универсальный способ загрузки друзей
     const loadUserFriends = async (userId: string, isOwn: boolean) => {
@@ -137,9 +138,12 @@ const UserProfilePage: React.FC = () => {
 
     const handleSendFriendRequest = async () => {
         setActionLoading(true);
+        setActionError('');
         try {
             await sendFriendRequest(Number(id));
-        } catch {}
+        } catch (requestError: any) {
+            setActionError(requestError?.response?.data?.detail || 'Не удалось отправить заявку');
+        }
         setActionLoading(false);
         afterAction();
     };
@@ -147,9 +151,12 @@ const UserProfilePage: React.FC = () => {
     const handleCancelFriendRequest = async () => {
         if (!requestId) return;
         setActionLoading(true);
+        setActionError('');
         try {
             await cancelFriendRequest(requestId);
-        } catch {}
+        } catch (requestError: any) {
+            setActionError(requestError?.response?.data?.detail || 'Не удалось отозвать заявку');
+        }
         setActionLoading(false);
         afterAction();
     };
@@ -157,9 +164,12 @@ const UserProfilePage: React.FC = () => {
     const handleAcceptFriendRequest = async () => {
         if (!requestId) return;
         setActionLoading(true);
+        setActionError('');
         try {
             await acceptFriendRequest(requestId);
-        } catch {}
+        } catch (requestError: any) {
+            setActionError(requestError?.response?.data?.detail || 'Не удалось принять заявку');
+        }
         setActionLoading(false);
         afterAction();
     };
@@ -167,19 +177,25 @@ const UserProfilePage: React.FC = () => {
     const handleRejectFriendRequest = async () => {
         if (!requestId) return;
         setActionLoading(true);
+        setActionError('');
         try {
             await rejectFriendRequest(requestId);
-        } catch {}
+        } catch (requestError: any) {
+            setActionError(requestError?.response?.data?.detail || 'Не удалось отклонить заявку');
+        }
         setActionLoading(false);
         afterAction();
     };
 
     const handleRemoveFriend = async () => {
         setActionLoading(true);
+        setActionError('');
         try {
             await removeFriend(Number(id));
             setShowRemovePopup(false);
-        } catch {}
+        } catch (requestError: any) {
+            setActionError(requestError?.response?.data?.detail || 'Не удалось удалить друга');
+        }
         setActionLoading(false);
         afterAction();
     };
@@ -235,6 +251,7 @@ const UserProfilePage: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                {actionError && <p className="mb-4 text-red-600">{actionError}</p>}
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -377,4 +394,4 @@ const UserProfilePage: React.FC = () => {
     );
 };
 
-export default UserProfilePage; 
+export default UserProfilePage;

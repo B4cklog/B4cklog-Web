@@ -5,7 +5,7 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 const SESSION_ID_KEY = 'sessionId';
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_BACKEND_URL,
+    baseURL: import.meta.env.VITE_BACKEND_URL,
     headers: {
         'Content-Type': 'application/json',
     }
