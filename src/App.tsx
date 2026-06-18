@@ -1,14 +1,15 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
 import HomePage from './pages/HomePage';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import GameDetailPage from "./pages/GameDetailPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
+import UserProfilePage from './pages/UserProfilePage';
 import { useTheme } from './hooks/useTheme';
 import './styles/themes.css';
+import FriendSearchPage from "./pages/FriendSearchPage";
 
 function App() {
     // Инициализируем глобальную тему
@@ -30,11 +31,6 @@ function App() {
                 } />
 
                 {/* Только для авторизованных */}
-                <Route path="/profile" element={
-                    <PrivateRoute>
-                        <ProfilePage />
-                    </PrivateRoute>
-                } />
                 <Route path="/games/:id" element={
                     <PrivateRoute>
                         <GameDetailPage />
@@ -43,6 +39,16 @@ function App() {
                 <Route path="/search" element={
                     <PrivateRoute>
                         <SearchResultsPage />
+                    </PrivateRoute>
+                } />
+                <Route path="/friends/search" element={
+                    <PrivateRoute>
+                        <FriendSearchPage />
+                    </PrivateRoute>
+                } />
+                <Route path="/user/:id" element={
+                    <PrivateRoute>
+                        <UserProfilePage />
                     </PrivateRoute>
                 } />
             </Routes>
